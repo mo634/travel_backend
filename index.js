@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import ourServicesRoutes from './routes/our-services.routes.js';
 
 const app = express();
 const port = 3000;
@@ -20,6 +21,9 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
+
+// our-services routes
+app.use('/services', ourServicesRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
