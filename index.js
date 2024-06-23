@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import ourServicesRoutes from './routes/our-services.routes.js';
 import imageRoutes from "./routes/who-we-are.routes.js"
 import documentRoutes from "./routes/required-documents.routes.js"
-
+import pdfRoutes from "./routes/univerities-prices-pd.routes.js"
 const app = express();
 const port = 3000;
 dotenv.config();
@@ -34,6 +34,10 @@ app.use('/who-we-are', imageRoutes);
 
 // required-documents routes
 app.use('/documents', documentRoutes);
+
+// pdfs unversities prices routes
+app.use('/unversities-prices', pdfRoutes);
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
