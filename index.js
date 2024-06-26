@@ -5,6 +5,16 @@ import ourServicesRoutes from './routes/our-services.routes.js';
 import imageRoutes from "./routes/who-we-are.routes.js"
 import documentRoutes from "./routes/required-documents.routes.js"
 import pdfRoutes from "./routes/univerities-prices-pd.routes.js"
+import commonQuesions from "./routes/common-quesions.routes.js"
+import RussainUniversity from "./routes/russain-university.routes.js"
+import TechnicalUniversities from "./routes/technical-universities.routes.js"
+import RussainUniversityIraq from "./routes/russainUniversityIraq.routes.js"
+import russainLanguageLevel1Routes from "./routes/russainLanguageLevel1.routes.js"
+import mostImportant100Word from "./routes/mostImportant100Word.routes.js"
+import RussianBook from "./routes/russinaBook.routes.js"
+import YoutubeLinks from "./routes/ourStudents.routes.js"
+import Ratings from "./routes/rating.routes.js"
+
 const app = express();
 const port = 3000;
 dotenv.config();
@@ -37,6 +47,34 @@ app.use('/documents', documentRoutes);
 
 // pdfs unversities prices routes
 app.use('/unversities-prices', pdfRoutes);
+
+// common quesions routes 
+app.use("/common-quesions", commonQuesions)
+
+// RussainUniversityEgypt routes 
+app.use("/russain-university", RussainUniversity)
+
+// Technical Universities routes 
+app.use("/technical-university", TechnicalUniversities)
+
+// Russian Universities Iraq routes 
+app.use("/russian-unversity-iraq", RussainUniversityIraq)
+
+// russainLanguageLevel1Routes Iraq routes 
+
+app.use("/russain-language-level1", russainLanguageLevel1Routes)
+
+//mostImportant100Word routes
+app.use("/most-important-100word", mostImportant100Word)
+
+//RussianBook routes
+app.use("/russian-book", RussianBook)
+
+//youtubeLinks routes
+app.use("/youtube-links", YoutubeLinks)
+
+//youtubeLinks routes
+app.use("/ratings", Ratings)
 
 
 app.listen(port, () => {
