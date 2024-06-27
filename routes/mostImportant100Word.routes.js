@@ -1,7 +1,7 @@
-import express from 'express';
+import { Router } from 'express';
 import { upload, uploadPdf, updatePdf, deletePdf, getPdf } from '../controllers/mostImportant100Word.controller.js'; // Adjust the path as necessary
 
-const router = express.Router();
+const router = Router();
 
 router.post('/upload', upload.single('pdfFile'), uploadPdf);
 router.put('/update/:id', upload.single('pdfFile'), updatePdf);
