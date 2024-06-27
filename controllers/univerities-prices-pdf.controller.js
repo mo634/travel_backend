@@ -1,5 +1,5 @@
 import Pdf from '../models/univerities-prices-pdf.model.js';
-import cloudinary from '../config/cloudinary.js';
+import {cloudinary} from '../config/cloudinary.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';

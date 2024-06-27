@@ -1,7 +1,10 @@
-import cloudinary from 'cloudinary';
+import pkg from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const { v2: cloudinary } = pkg;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,4 +12,11 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export default cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads',
+  },
+});
+
+export { cloudinary, storage };

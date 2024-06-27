@@ -1,5 +1,5 @@
 import MostImportant100Word from '../models/mostImportant100Word.model.js'; // Adjust the path as necessary
-import cloudinary from '../config/cloudinary.js';
+import {cloudinary} from '../config/cloudinary.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';

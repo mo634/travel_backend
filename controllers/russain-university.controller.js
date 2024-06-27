@@ -1,6 +1,6 @@
 import RussainUniversity from '../models/russain-university.model.js'; 
 // Adjust the path as necessary
-import cloudinary from '../config/cloudinary.js';
+import {cloudinary} from '../config/cloudinary.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';

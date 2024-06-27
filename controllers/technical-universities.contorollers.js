@@ -1,5 +1,5 @@
 import TechnicalUniversity from '../models/technical-universities.models.js'; // Adjust the path as necessary
-import cloudinary from '../config/cloudinary.js';
+import {cloudinary} from '../config/cloudinary.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';

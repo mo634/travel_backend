@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { upload, uploadImages, getAllImages, deleteImage } from '../controllers/who-we-are.controller.js';
+
 const router = Router();
 
 router.post('/upload', upload.array('images', 10), uploadImages);
