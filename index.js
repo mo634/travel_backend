@@ -19,10 +19,10 @@ const app = express();
 const port = 3000;
 dotenv.config();
 
-// Middleware
-app.use(express.json()); // for parsing application/json
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+// Middleware
+app.use(express.json({ limit: '20mb' })); // for parsing application/json with a larger payload size limit
+app.use(express.urlencoded({ limit: '20mb', extended: true })); // for parsing application/x-www-form-urlencoded with a larger payload size limit
 
 
 // MongoDB connection
