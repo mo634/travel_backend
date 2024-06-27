@@ -1,87 +1,88 @@
 import RussinaBook from '../models/russinaBook.model.js'; // Adjust the path as necessary
 import { cloudinary, storage } from '../config/cloudinary.js';
-import multer from 'multer';
 
-// Use Multer with Cloudinary storage
-// const upload = multer({ storage });
+// No need to use Multer since we're not handling file uploads in this route
 
-// const uploadPdf = async (req, res) => {
-//     try {
-//         const result = await cloudinary.uploader.upload(req.file.path, {
-//             resource_type: 'raw', // 'raw' is used for non-image files like PDFs
-//             folder: 'pdfs',
-//         });
+const uploadPdf = async (req, res) => {
+    try {
+        const { pdfName, pdfUrl } = req.body;
 
-//         const pdf = new RussinaBook({
-//             pdfName: req.body.pdfName,
-//             pdfUrl: result.secure_url,
-//             cloudinary_id: result.public_id // Save the Cloudinary public ID
-//         });
+        // Upload the PDF from the provided URL to Cloudinary
+        const result = await cloudinary.uploader.upload(pdfUrl, {
+            resource_type: 'raw', // 'raw' is used for non-image files like PDFs
+            folder: 'pdfs',
+        });
 
-//         await pdf.save();
-//         res.status(201).json(pdf);
-//     } catch (error) {
-//         console.error("Error uploading file:", error);
-//         res.status(500).json({ error: error.message });
-//     }
-// };
+        const pdf = new RussinaBook({
+            pdfName: pdfName,
+            pdfUrl: result.secure_url,
+            cloudinary_id: result.public_id // Save the Cloudinary public ID
+        });
 
-// const updatePdf = async (req, res) => {
-//     try {
-//         const { pdfName } = req.body;
+        await pdf.save();
+        res.status(201).json(pdf);
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
-//         const pdf = await RussinaBook.findById(req.params.id);
-//         if (!pdf) {
-//             return res.status(404).json({ error: 'PDF not found' });
-//         }
+const updatePdf = async (req, res) => {
+    try {
+        const { pdfName, pdfUrl } = req.body;
 
-//         if (req.file) {
-//             // Delete the old PDF from Cloudinary
-//             await cloudinary.uploader.destroy(pdf.cloudinary_id, {
-//                 resource_type: 'raw',
-//             });
+        const pdf = await RussinaBook.findById(req.params.id);
+        if (!pdf) {
+            return res.status(404).json({ error: 'PDF not found' });
+        }
 
-//             // Upload the new PDF to Cloudinary
-//             const result = await cloudinary.uploader.upload(req.file.path, {
-//                 resource_type: 'raw',
-//                 folder: 'pdfs',
-//             });
+        if (pdfUrl) {
+            // Delete the old PDF from Cloudinary
+            await cloudinary.uploader.destroy(pdf.cloudinary_id, {
+                resource_type: 'raw',
+            });
 
-//             // Update the PDF document in the database
-//             pdf.pdfUrl = result.secure_url;
-//             pdf.cloudinary_id = result.public_id; // Save the new Cloudinary public ID
-//         }
+            // Upload the new PDF from the provided URL to Cloudinary
+            const result = await cloudinary.uploader.upload(pdfUrl, {
+                resource_type: 'raw',
+                folder: 'pdfs',
+            });
 
-//         pdf.pdfName = pdfName || pdf.pdfName;
-//         await pdf.save();
+            // Update the PDF document in the database
+            pdf.pdfUrl = result.secure_url;
+            pdf.cloudinary_id = result.public_id; // Save the new Cloudinary public ID
+        }
 
-//         res.status(200).json(pdf);
-//     } catch (error) {
-//         console.error("Error updating file:", error);
-//         res.status(400).json({ error: error.message });
-//     }
-// };
+        pdf.pdfName = pdfName || pdf.pdfName;
+        await pdf.save();
 
-// const deletePdf = async (req, res) => {
-//     try {
-//         const pdf = await RussinaBook.findById(req.params.id);
-//         if (!pdf) {
-//             return res.status(404).json({ error: 'PDF not found' });
-//         }
+        res.status(200).json(pdf);
+    } catch (error) {
+        console.error("Error updating file:", error);
+        res.status(400).json({ error: error.message });
+    }
+};
 
-//         // Delete the file from Cloudinary
-//         await cloudinary.uploader.destroy(pdf.cloudinary_id, {
-//             resource_type: 'raw',
-//         });
+const deletePdf = async (req, res) => {
+    try {
+        const pdf = await RussinaBook.findById(req.params.id);
+        if (!pdf) {
+            return res.status(404).json({ error: 'PDF not found' });
+        }
 
-//         // Delete the PDF document from the database
-//         await RussinaBook.findByIdAndDelete(req.params.id);
+        // Delete the file from Cloudinary
+        await cloudinary.uploader.destroy(pdf.cloudinary_id, {
+            resource_type: 'raw',
+        });
 
-//         res.status(200).json({ message: 'PDF deleted successfully' });
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
+        // Delete the PDF document from the database
+        await RussinaBook.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({ message: 'PDF deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 const getPdf = async (req, res) => {
     try {
@@ -92,4 +93,4 @@ const getPdf = async (req, res) => {
     }
 };
 
-export { /*upload, uploadPdf, updatePdf, deletePdf,*/ getPdf };
+export { uploadPdf, updatePdf, deletePdf, getPdf };
