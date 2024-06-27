@@ -1,31 +1,16 @@
 import Pdf from '../models/univerities-prices-pdf.model.js';
-import {cloudinary} from '../config/cloudinary.js';
+import { cloudinary, storage } from '../config/cloudinary.js';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
 
-// Multer config - store files on disk
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
+// Use Multer with Cloudinary storage
 const upload = multer({ storage });
 
 const uploadPdf = async (req, res) => {
     try {
-        const filePath = req.file.path;
-        const result = await cloudinary.uploader.upload(filePath, {
+        const result = await cloudinary.uploader.upload(req.file.path, {
             resource_type: 'raw', // 'raw' is used for non-image files like PDFs
             folder: 'pdfs',
         });
-
-        // Remove file from local storage
-        fs.unlinkSync(filePath);
 
         const pdf = new Pdf({
             pdfName: req.body.pdfName,
@@ -44,31 +29,30 @@ const uploadPdf = async (req, res) => {
 const updatePdf = async (req, res) => {
     try {
         const { pdfName } = req.body;
-        const filePath = req.file.path;
 
         const pdf = await Pdf.findById(req.params.id);
         if (!pdf) {
             return res.status(404).json({ error: 'PDF not found' });
         }
 
-        // Delete the old PDF from Cloudinary
-        await cloudinary.uploader.destroy(pdf.cloudinary_id, {
-            resource_type: 'raw',
-        });
+        if (req.file) {
+            // Delete the old PDF from Cloudinary
+            await cloudinary.uploader.destroy(pdf.cloudinary_id, {
+                resource_type: 'raw',
+            });
 
-        // Upload the new PDF to Cloudinary
-        const result = await cloudinary.uploader.upload(filePath, {
-            resource_type: 'raw',
-            folder: 'pdfs',
-        });
+            // Upload the new PDF to Cloudinary
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                resource_type: 'raw',
+                folder: 'pdfs',
+            });
 
-        // Remove file from local storage
-        fs.unlinkSync(filePath);
+            // Update the PDF document in the database
+            pdf.pdfUrl = result.secure_url;
+            pdf.cloudinary_id = result.public_id; // Save the new Cloudinary public ID
+        }
 
-        // Update the PDF document in the database
-        pdf.pdfName = pdfName;
-        pdf.pdfUrl = result.secure_url;
-        pdf.cloudinary_id = result.public_id; // Save the new Cloudinary public ID
+        pdf.pdfName = pdfName || pdf.pdfName;
         await pdf.save();
 
         res.status(200).json(pdf);
@@ -77,7 +61,6 @@ const updatePdf = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
-
 
 const deletePdf = async (req, res) => {
     try {
@@ -100,17 +83,16 @@ const deletePdf = async (req, res) => {
     }
 };
 
-
 const getPdf = async (req, res) => {
     try {
-      const pdf = await Pdf.findById(req.params.id);
-      if (!pdf) {
-        return res.status(404).json({ error: 'PDF not found' });
-      }
-      res.status(200).json(pdf);
+        const pdf = await Pdf.findById(req.params.id);
+        if (!pdf) {
+            return res.status(404).json({ error: 'PDF not found' });
+        }
+        res.status(200).json(pdf);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
-  };
+};
 
-export { upload, uploadPdf, updatePdf, deletePdf,getPdf };
+export { upload, uploadPdf, updatePdf, deletePdf, getPdf };

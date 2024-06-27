@@ -1,31 +1,16 @@
 import RussinaBook from '../models/russinaBook.model.js'; // Adjust the path as necessary
-import {cloudinary} from '../config/cloudinary.js';
+import { cloudinary, storage } from '../config/cloudinary.js';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
 
-// Multer config - store files on disk
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
+// Use Multer with Cloudinary storage
 const upload = multer({ storage });
 
 const uploadPdf = async (req, res) => {
     try {
-        const filePath = req.file.path;
-        const result = await cloudinary.uploader.upload(filePath, {
+        const result = await cloudinary.uploader.upload(req.file.path, {
             resource_type: 'raw', // 'raw' is used for non-image files like PDFs
             folder: 'pdfs',
         });
-
-        // Remove file from local storage
-        fs.unlinkSync(filePath);
 
         const pdf = new RussinaBook({
             pdfName: req.body.pdfName,
@@ -44,27 +29,23 @@ const uploadPdf = async (req, res) => {
 const updatePdf = async (req, res) => {
     try {
         const { pdfName } = req.body;
-        const filePath = req.file ? req.file.path : null;
 
         const pdf = await RussinaBook.findById(req.params.id);
         if (!pdf) {
             return res.status(404).json({ error: 'PDF not found' });
         }
 
-        if (filePath) {
+        if (req.file) {
             // Delete the old PDF from Cloudinary
             await cloudinary.uploader.destroy(pdf.cloudinary_id, {
                 resource_type: 'raw',
             });
 
             // Upload the new PDF to Cloudinary
-            const result = await cloudinary.uploader.upload(filePath, {
+            const result = await cloudinary.uploader.upload(req.file.path, {
                 resource_type: 'raw',
                 folder: 'pdfs',
             });
-
-            // Remove file from local storage
-            fs.unlinkSync(filePath);
 
             // Update the PDF document in the database
             pdf.pdfUrl = result.secure_url;
@@ -104,11 +85,8 @@ const deletePdf = async (req, res) => {
 
 const getPdf = async (req, res) => {
     try {
-        const pdf = await RussinaBook.find();
-        if (!pdf) {
-            return res.status(404).json({ error: 'PDF not found' });
-        }
-        res.status(200).json(pdf);
+        const pdfs = await RussinaBook.find();
+        res.status(200).json(pdfs);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
