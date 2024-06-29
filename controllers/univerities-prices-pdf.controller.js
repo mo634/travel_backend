@@ -85,7 +85,7 @@ const deletePdf = async (req, res) => {
 
 const getPdf = async (req, res) => {
     try {
-        const pdf = await Pdf.findById(req.params.id);
+        const pdf = await Pdf.find();
         if (!pdf) {
             return res.status(404).json({ error: 'PDF not found' });
         }
